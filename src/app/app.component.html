@@ -52,7 +52,7 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-        <button *ngIf="address.valid" class="bet-button" mat-raised-button color="accent">Play</button>
+        <button *ngIf="address.valid" (click)="placeBet()" class="bet-button" mat-raised-button color="accent">Play</button>
       </div>
     </div>
     <div fxFlex="0" fxFlex.gt-xs="10" fxFlex.gt-md="20" fxFlex.gt-lg="30"></div>

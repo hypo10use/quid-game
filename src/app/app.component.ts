@@ -48,4 +48,8 @@ export class AppComponent {
   connectWallet() {
     this.walletService.connectWallet();
   }
+
+  placeBet() {
+    this.blockchainService.placeBet();
+  }
 }
