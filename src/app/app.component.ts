@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { MatIconRegistry } from "@angular/material/icon";
 import { DomSanitizer } from "@angular/platform-browser";
-import { Address, TokenType, WalletConnectionState, WalletService } from "./services/wallet.service";
+import { TokenType, WalletConnectionState, WalletService } from "./services/wallet.service";
 import { Observable } from "rxjs";
 import { FormControl, Validators } from "@angular/forms";
 import { BlockchainService } from "./services/blockchain.service";
 import { NetworkState } from "./models/network-state";
+import { Address, I64 } from "ergo-lib-wasm-browser";
 
 @Component({
   selector: 'app-root',
@@ -19,7 +20,7 @@ export class AppComponent {
   address: FormControl = new FormControl(null, [Validators.required]);
 
   addresses: Address[] = [];
-  selectedToken = TokenType.QUID;
+  selectedToken = TokenType.ERG;
 
   constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer, private walletService: WalletService, private blockchainService: BlockchainService) {
     this.blockchainService.getNetworkState().subscribe((networkState: NetworkState) => {
@@ -50,6 +51,8 @@ export class AppComponent {
   }
 
   placeBet() {
-    this.blockchainService.placeBet();
+    this.blockchainService.placeBet(I64.from_str('1')).then(() => {
+
+    });
   }
 }

@@ -22,7 +22,6 @@
     "@angular/platform-browser-dynamic": "~13.1.1",
     "@angular/router": "~13.1.1",
     "ergo-lib-wasm-browser": "^0.14.0",
-    "json-bigint": "^1.0.0",
     "rxjs": "~6.6.0",
     "tslib": "^2.3.0",
     "urlcat": "^2.0.4",

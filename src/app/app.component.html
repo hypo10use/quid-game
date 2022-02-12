@@ -44,15 +44,21 @@
           <p>- Bet if the sum of all amounts is odd or even</p>
         </div>
         <div fxFlex="1 1 auto" fxFlex.gt-xs="10"></div>
-        <mat-form-field>
+        <mat-form-field *ngIf="addresses.length > 0; else loadingAddresses">
           <mat-label>Select a wallet address to use:</mat-label>
           <mat-select [formControl]="address">
             <mat-option [value]="address" *ngFor="let address of addresses">
-              {{address}}
+              {{address.to_base58(0)}}
             </mat-option>
           </mat-select>
         </mat-form-field>
-        <button *ngIf="address.valid" (click)="placeBet()" class="bet-button" mat-raised-button color="accent">Play</button>
+        <ng-template #loadingAddresses>
+          <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="4px">
+            <mat-spinner diameter="20"></mat-spinner>
+          </div>
+        </ng-template>
+        <button *ngIf="address.valid" (click)="placeBet()" class="bet-button" mat-raised-button color="accent">Play
+        </button>
       </div>
     </div>
     <div fxFlex="0" fxFlex.gt-xs="10" fxFlex.gt-md="20" fxFlex.gt-lg="30"></div>

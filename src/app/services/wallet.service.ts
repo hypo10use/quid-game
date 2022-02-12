@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, from, Observable } from "rxjs";
-import { ErgoBox, Transaction, UnsignedTransaction } from "ergo-lib-wasm-browser";
+import { Address, Transaction } from "ergo-lib-wasm-browser";
+import { AssetI64, InputBoxYoroi, UnsignedTransactionYoroi } from "../models/transaction";
+import { map } from "rxjs/operators";
 
 export class TokenType {
   public static readonly ERG: TokenType = new TokenType('ERG', 'ERG', 1000 * 1000 * 1000);
@@ -17,8 +19,6 @@ export enum WalletConnectionState {
   DISCONNECTED = 'DISCONNECTED'
 }
 
-export type Address = string;
-
 interface ErgoWindow extends Window {
   ergo: ErgoAPI
 
@@ -30,11 +30,11 @@ interface ErgoWindow extends Window {
 export interface ErgoAPI {
   get_balance(token_id: string): Promise<number>,
 
-  sign_tx(tx: UnsignedTransaction): Promise<Transaction>;
+  sign_tx(tx: UnsignedTransactionYoroi): Promise<Transaction>;
 
   submit_tx(tx: Transaction): Promise<string>;
 
-  get_utxos(amount: string, token_id: string): Promise<ErgoBox[]>;
+  get_utxos(amount: string, token_id: string): Promise<InputBoxYoroi[]>;
 
   get_used_addresses(paginate?: Object): Promise<string[]>;
 
@@ -84,23 +84,23 @@ export class WalletService {
     throw 'Wallet not initialized';
   }
 
-  getChangeAddress(): Observable<string> {
+  getChangeAddress(): Observable<Address> {
     if (this._ergo) {
-      return from(this._ergo.get_change_address());
+      return from(this._ergo.get_change_address()).pipe(map(s => Address.from_base58(s)));
     }
     this._walletConnectionState.next(WalletConnectionState.DISCONNECTED);
     throw 'Wallet not initialized';
   }
 
-  get_utxos(value: string, token: string): Observable<ErgoBox[]> {
+  get_utxos(asset: AssetI64): Observable<InputBoxYoroi[]> {
     if (this._ergo) {
-      return from(this._ergo.get_utxos(value, token));
+      return from(this._ergo.get_utxos(asset.amount.to_str(), asset.tokenId));
     }
     this._walletConnectionState.next(WalletConnectionState.DISCONNECTED);
     throw 'Wallet not initialized';
   }
 
-  sign_tx(tx: UnsignedTransaction): Observable<Transaction> {
+  sign_tx(tx: UnsignedTransactionYoroi): Observable<Transaction> {
     if (this._ergo) {
       return from(this._ergo.sign_tx(tx));
     }
@@ -108,7 +108,7 @@ export class WalletService {
     throw 'Wallet not initialized';
   }
 
-  submit_tx(tx: Transaction): Observable<Object> {
+  submit_tx(tx: Transaction): Observable<string> {
     if (this._ergo) {
       return from(this._ergo.submit_tx(tx));
     }
@@ -118,7 +118,7 @@ export class WalletService {
 
   getUsedAddresses(): Observable<Address[]> {
     if (this._ergo) {
-      return from(this._ergo.get_used_addresses());
+      return from(this._ergo.get_used_addresses()).pipe(map(addresses => addresses.map(address => Address.from_base58(address))));
     }
     this._walletConnectionState.next(WalletConnectionState.DISCONNECTED);
     throw 'Wallet not initialized';
