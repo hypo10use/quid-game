@@ -6,6 +6,7 @@ import { map } from "rxjs/operators";
 
 export class TokenType {
   public static readonly ERG: TokenType = new TokenType('ERG', 'ERG', 1000 * 1000 * 1000);
+  public static readonly NANOERG: TokenType = new TokenType('ERG', 'nERG', 1);
   public static readonly QUID: TokenType = new TokenType('264a662cbeca93c982796a578a6f69d59d25954126074f658db007ed52d1d679', 'QUID', 1);
 
   private constructor(public id: string, public name: string, public divider: number) {

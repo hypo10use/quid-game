@@ -1,6 +1,6 @@
 <main fxLayout="column" fxLayoutGap="10px">
   <mat-toolbar color="primary">
-    <span>hype10use</span>
+    <span>hypo10use</span>
     <span class="toolbar-spacer"></span>
     <ng-container [ngSwitch]="walletConnectionState$ | async">
       <mat-spinner *ngSwitchCase="WALLET_CONNECTION_STATES.CONNECTING" color="accent" diameter="40"></mat-spinner>
@@ -44,21 +44,44 @@
           <p>- Bet if the sum of all amounts is odd or even</p>
         </div>
         <div fxFlex="1 1 auto" fxFlex.gt-xs="10"></div>
-        <mat-form-field *ngIf="addresses.length > 0; else loadingAddresses">
-          <mat-label>Select a wallet address to use:</mat-label>
-          <mat-select [formControl]="address">
-            <mat-option [value]="address" *ngFor="let address of addresses">
-              {{address.to_base58(0)}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <ng-template #loadingAddresses>
-          <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="4px">
-            <mat-spinner diameter="20"></mat-spinner>
+        <form [formGroup]="betForm">
+          <div fxLayout="row">
+            <mat-form-field fxFlex appearance="outline" class="form-field">
+              <mat-label>ADDRESS</mat-label>
+              <mat-select formControlName="address">
+                <mat-option *ngIf="addresses.length === 0">
+                  <mat-spinner diameter="20"></mat-spinner>
+                </mat-option>
+                <mat-option [value]="address" *ngFor="let address of addresses">
+                  {{address | address}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field fxFlex appearance="outline" class="form-field">
+              <mat-label>nERG</mat-label>
+              <input matInput type="number" min="0" formControlName="amount">
+            </mat-form-field>
           </div>
-        </ng-template>
-        <button *ngIf="address.valid" (click)="placeBet()" class="bet-button" mat-raised-button color="accent">Play
-        </button>
+          <div fxLayout="row">
+            <mat-radio-group fxFlex fxLayout="column" formControlName="bet" class="form-field">
+              <mat-radio-button [value]="bet.ODD" color="primary">{{bet.ODD.id}}</mat-radio-button>
+              <mat-radio-button [value]="bet.EVEN" color="primary">{{bet.EVEN.id}}</mat-radio-button>
+            </mat-radio-group>
+
+            <div fxFlex fxLayout="column" class="form-field">
+              <button fxFlex [disabled]="!betForm.valid || placingBet" (click)="placeBet()" mat-raised-button
+                      color="primary">
+                <span *ngIf="!placingBet; else placingBetSpinner">Bet</span>
+                <ng-template #placingBetSpinner>
+                  <div fxLayout="column" fxLayoutAlign="center center">
+                    <mat-spinner diameter="20"></mat-spinner>
+                  </div>
+                </ng-template>
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
     <div fxFlex="0" fxFlex.gt-xs="10" fxFlex.gt-md="20" fxFlex.gt-lg="30"></div>

@@ -1,28 +1,40 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatIconRegistry } from "@angular/material/icon";
 import { DomSanitizer } from "@angular/platform-browser";
 import { TokenType, WalletConnectionState, WalletService } from "./services/wallet.service";
 import { Observable } from "rxjs";
-import { FormControl, Validators } from "@angular/forms";
-import { BlockchainService } from "./services/blockchain.service";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { NetworkState } from "./models/network-state";
 import { Address, I64 } from "ergo-lib-wasm-browser";
+import { Bet, BetService } from "./services/bet.service";
+import { BlockchainService } from "./services/blockchain.service";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   walletConnectionState$: Observable<WalletConnectionState>;
   WALLET_CONNECTION_STATES: typeof WalletConnectionState = WalletConnectionState;
   balance: number = -1;
-  address: FormControl = new FormControl(null, [Validators.required]);
+  betForm: FormGroup;
+  bet: typeof Bet = Bet;
 
   addresses: Address[] = [];
-  selectedToken = TokenType.ERG;
+  selectedToken = TokenType.NANOERG;
+  placingBet: boolean = false;
 
-  constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer, private walletService: WalletService, private blockchainService: BlockchainService) {
+  constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer, private fb: FormBuilder,
+              private walletService: WalletService, private blockchainService: BlockchainService,
+              private betService: BetService) {
+
+    this.betForm = fb.group({
+      address: [null, Validators.required],
+      amount: [0, [Validators.required, Validators.min(1)]],
+      bet: [Bet.ODD]
+    })
+
     this.blockchainService.getNetworkState().subscribe((networkState: NetworkState) => {
       console.log(networkState);
     });
@@ -37,13 +49,27 @@ export class AppComponent {
         });
         this.walletService.getUsedAddresses().subscribe((addresses: Address[]) => {
           this.addresses = addresses;
-        })
+          if (addresses.length > 0) {
+            this.betForm.patchValue({address: addresses[0]})
+          }
+        });
       }
     })
 
-    this.matIconRegistry.addSvgIcon('circle', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/svg/circle.svg'));
-    this.matIconRegistry.addSvgIcon('triangle', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/svg/triangle.svg'));
-    this.matIconRegistry.addSvgIcon('rectangle', this.domSanitizer.bypassSecurityTrustResourceUrl('assets/svg/rectangle.svg'));
+    this.matIconRegistry.addSvgIcon('circle',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/svg/circle.svg'));
+    this.matIconRegistry.addSvgIcon('triangle',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/svg/triangle.svg'));
+    this.matIconRegistry.addSvgIcon('rectangle',
+      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/svg/rectangle.svg'));
+  }
+
+  get selectedAddress(): Address {
+    return this.betForm.get('address')?.value;
+  }
+
+  ngOnInit(): void {
+    this.connectWallet();
   }
 
   connectWallet() {
@@ -51,8 +77,11 @@ export class AppComponent {
   }
 
   placeBet() {
-    this.blockchainService.placeBet(I64.from_str('1')).then(() => {
+    if (this.betForm.valid) {
+      this.placingBet = true;
+      this.betService.placeBet(I64.from_str(this.betForm.get('amount')?.value.toString()), this.betForm.get('address')?.value, this.betForm.get('bet')?.value).then(() => {
 
-    });
+      }).catch((error) => console.error(error)).finally(() => this.placingBet = false);
+    }
   }
 }

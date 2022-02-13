@@ -13,11 +13,15 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { HttpClientModule } from "@angular/common/http";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
+import { MatMenuModule } from "@angular/material/menu";
+import { AddressPipe } from './pipes/address.pipe';
+import { MatRadioModule } from "@angular/material/radio";
 
 @NgModule({
   declarations: [
     AppComponent,
-    TokenPipe
+    TokenPipe,
+    AddressPipe
   ],
   imports: [
     BrowserModule,
@@ -30,7 +34,9 @@ import { MatSelectModule } from "@angular/material/select";
     MatButtonModule,
     MatInputModule,
     ReactiveFormsModule,
-    MatSelectModule
+    MatSelectModule,
+    MatMenuModule,
+    MatRadioModule
   ],
   providers: [],
   bootstrap: [AppComponent]
