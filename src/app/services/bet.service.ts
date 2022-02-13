@@ -45,10 +45,8 @@ export class BetService {
 
     let inputBoxes: InputBoxYoroi[] = await this.walletService.get_utxos(asset).toPromise();
 
-    let addr2: Address = Address.from_base58('9gv4CVNsd181sZxyDyaBaUxPuuxkBJcpcz6VfaVxwhVyWN7aWe5');
-
     const networkState: NetworkState = await this.blockchainService.getNetworkState().toPromise();
-    const compiledContract = await this.blockchainService.p2s(contract).toPromise();
+    const gameBoxAddress: Address = await this.blockchainService.getGameBoxAddress().toPromise();
     const selector: SimpleBoxSelector = new SimpleBoxSelector();
 
     const boxSelection: BoxSelection = selector.select(
@@ -60,7 +58,7 @@ export class BetService {
     const outputCandidates: ErgoBoxCandidates = ErgoBoxCandidates.empty();
     const donationBoxBuilder: ErgoBoxCandidateBuilder = new ErgoBoxCandidateBuilder(
       TxBuilder.SUGGESTED_TX_FEE(),
-      Contract.pay_to_address(addr2),
+      Contract.pay_to_address(gameBoxAddress),
       networkState.height);
     try {
       outputCandidates.add(donationBoxBuilder.build());

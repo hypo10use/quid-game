@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { ExplorerApi } from "../api/explorer.api";
 import { Observable } from "rxjs";
 import { NetworkState } from "../models/network-state";
+import { Address } from "ergo-lib-wasm-browser";
+import { map } from "rxjs/operators";
 import { NodeApi } from "../api/node.api";
 
 
@@ -18,8 +20,7 @@ export class BlockchainService {
     return this.httpClient.get<NetworkState>(ExplorerApi.NETWORK_STATE());
   }
 
-  p2s(contract: string): Observable<any> {
-    const headers = new HttpHeaders().set('Content-Type', 'application/json')
-    return this.httpClient.post(NodeApi.COMPILE(), contract, {headers: headers})
+  getGameBoxAddress(): Observable<Address> {
+    return this.httpClient.get(NodeApi.GET_GAME_BOX_ADDRESS(), {responseType: 'text'}).pipe(map(s => Address.from_base58(s)))
   }
 }

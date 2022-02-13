@@ -5,7 +5,7 @@ import { TokenType, WalletConnectionState, WalletService } from "./services/wall
 import { Observable } from "rxjs";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { NetworkState } from "./models/network-state";
-import { Address, I64 } from "ergo-lib-wasm-browser";
+import { Address, I64, TxBuilder } from "ergo-lib-wasm-browser";
 import { Bet, BetService } from "./services/bet.service";
 import { BlockchainService } from "./services/blockchain.service";
 
@@ -31,7 +31,7 @@ export class AppComponent implements OnInit {
 
     this.betForm = fb.group({
       address: [null, Validators.required],
-      amount: [0, [Validators.required, Validators.min(1)]],
+      amount: [TxBuilder.SUGGESTED_TX_FEE().as_i64().as_num(), [Validators.required, Validators.min(TxBuilder.SUGGESTED_TX_FEE().as_i64().as_num())]],
       bet: [Bet.ODD]
     })
 
