@@ -36,7 +36,6 @@ export class BetService {
 
   async placeBet(amount: I64, address: Address, bet: Bet): Promise<void> {
     console.log('amount:', amount.as_num(), 'address:', address.to_base58(0), 'bet:', bet)
-    const contract = `{"script": "sigmaProp(1 == 1)"}`;
 
     const asset: AssetI64 = {
       tokenId: TokenType.ERG.id,
@@ -51,7 +50,7 @@ export class BetService {
 
     const boxSelection: BoxSelection = selector.select(
       ErgoBoxes.from_boxes_json(inputBoxes),
-      BoxValue.from_i64(asset.amount.checked_add(TxBuilder.SUGGESTED_TX_FEE().as_i64())),
+      BoxValue.from_i64(asset.amount),
       new Tokens()
     );
 
